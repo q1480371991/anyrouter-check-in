@@ -43,9 +43,24 @@ jobs:
         uv sync --frozen
         echo "✅ 环境初始化完成"
 
+    - name: 配置代理
+      env:
+        PROXY_SUBSCRIPTION_URL: ${{ secrets.PROXY_SUBSCRIPTION_URL }}
+        PROXY_TEST_URL: https://www.google.com/generate_204
+        MIHOMO_VERSION: v1.19.27
+        PROXY_REQUIRED: false
+      run: bash scripts/setup_mihomo_proxy.sh
+
     - name: 安装系统依赖
       run: |
         set -euo pipefail
+        if [[ -n "${CHECKIN_PROXY_URL:-}" ]]; then
+          export http_proxy="${CHECKIN_PROXY_URL}"
+          export https_proxy="${CHECKIN_PROXY_URL}"
+          export HTTP_PROXY="${CHECKIN_PROXY_URL}"
+          export HTTPS_PROXY="${CHECKIN_PROXY_URL}"
+          echo "系统依赖安装将通过 ${CHECKIN_PROXY_URL} 访问软件源"
+        fi
         packages=(
           xvfb fonts-noto-color-emoji fonts-freefont-ttf fonts-unifont
           fonts-ipafont-gothic fonts-wqy-zenhei fonts-tlwg-loma-otf
@@ -92,14 +107,6 @@ jobs:
         key: browser-profiles-${{ runner.os }}-v1
         restore-keys: |
           browser-profiles-${{ runner.os }}-
-
-    - name: 配置代理
-      env:
-        PROXY_SUBSCRIPTION_URL: ${{ secrets.PROXY_SUBSCRIPTION_URL }}
-        PROXY_TEST_URL: https://www.google.com/generate_204
-        MIHOMO_VERSION: v1.19.27
-        PROXY_REQUIRED: false
-      run: bash scripts/setup_mihomo_proxy.sh
 
     - name: 执行签到
       env:

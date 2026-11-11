@@ -1,14 +1,8 @@
 name: AnyRouter 自动签到
-'on':
+on:
   schedule:
     - cron: '7 */6 * * *'
   workflow_dispatch:
-    inputs:
-      debug:
-        description: 开启调试模式（截图 artifact、详细日志）
-        required: false
-        default: false
-        type: boolean
 
 jobs:
   checkin:

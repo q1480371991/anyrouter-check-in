@@ -59,6 +59,10 @@ jobs:
           export https_proxy="${CHECKIN_PROXY_URL}"
           export HTTP_PROXY="${CHECKIN_PROXY_URL}"
           export HTTPS_PROXY="${CHECKIN_PROXY_URL}"
+          sudo tee /etc/apt/apt.conf.d/99-checkin-proxy >/dev/null <<EOF
+Acquire::http::Proxy "${CHECKIN_PROXY_URL}";
+Acquire::https::Proxy "${CHECKIN_PROXY_URL}";
+EOF
           echo "系统依赖安装将通过 ${CHECKIN_PROXY_URL} 访问软件源"
         fi
         packages=(

@@ -45,9 +45,22 @@ jobs:
 
     - name: 安装系统依赖
       run: |
-        sudo apt-get update
-        sudo apt-get install -y xvfb fonts-noto-color-emoji fonts-freefont-ttf fonts-unifont \
+        set -euo pipefail
+        packages=(
+          xvfb fonts-noto-color-emoji fonts-freefont-ttf fonts-unifont
           fonts-ipafont-gothic fonts-wqy-zenhei fonts-tlwg-loma-otf
+        )
+        for attempt in 1 2 3; do
+          if sudo apt-get update && sudo apt-get install -y --no-install-recommends "${packages[@]}"; then
+            break
+          fi
+          if [ "$attempt" -eq 3 ]; then
+            echo "系统依赖安装失败，已重试 $attempt 次" >&2
+            exit 1
+          fi
+          echo "系统软件源暂时不可用，将在 20 秒后重试（第 $attempt 次）" >&2
+          sleep 20
+        done
 
     - name: 缓存 CloakBrowser 二进制
       uses: actions/cache@v5
